@@ -1,11 +1,22 @@
+<script setup>
+import { computed } from 'vue'
+import authors from "../assets/json/authors.json"
+import bookstores from "../assets/json/bookstores.json"
+
+// 2.1
+const modernAuthors = computed(() =>
+  authors.filter((author) => author.birthYear > 1850)
+)
+</script>
+
 <template>
   <div class="json-lab">
     <h1>📚 Library Data</h1>
 
-    <!-- author data -->
+    <!-- author data  -->
     <section>
-      <h2>Authors</h2>
-      <div v-for="author in authors" :key="author.id" class="author-card">
+      <h2>Authors Born After 1850</h2>
+      <div v-for="author in modernAuthors" :key="author.id" class="author-card">
         <h3>{{ author.name }} (Born {{ author.birthYear }})</h3>
         <p><strong>Genres:</strong> {{ author.genres.join(", ") }}</p>
         <div>
@@ -19,7 +30,7 @@
       </div>
     </section>
 
-    <!-- bookstore data -->
+    <!-- bookstores data -->
     <section>
       <h2>Bookstore Info</h2>
       <p><strong>Name:</strong> {{ bookstores.name }}</p>
@@ -44,33 +55,3 @@
     </section>
   </div>
 </template>
-
-<script setup>
-import authors from "../assets/json/authors.json"
-import bookstores from "../assets/json/bookstores.json"
-</script>
-
-<style scoped>
-.json-lab {
-  font-family: Arial, sans-serif;
-  padding: 20px;
-}
-h1 {
-  color: #333;
-}
-h2 {
-  margin-top: 20px;
-  color: #444;
-}
-.author-card {
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-  background-color: #f9f9f9;
-}
-ul {
-  margin: 0;
-  padding-left: 20px;
-}
-</style>
