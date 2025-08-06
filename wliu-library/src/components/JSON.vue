@@ -2,6 +2,16 @@
   <div class="json-lab">
     <h1>📚 Library Data</h1>
 
+    <!-- 3.1  -->
+    <section>
+      <h2>Author Names & Birth Years</h2>
+      <ul>
+        <li v-for="author in authors" :key="author.id">
+          {{ author.name }} ({{ author.birthYear }})
+        </li>
+      </ul>
+    </section>
+
     <!-- author data -->
     <section>
       <h2>Authors</h2>
@@ -42,8 +52,6 @@
         <p>Weekends: {{ bookstores.openingHours.weekends.open }} - {{ bookstores.openingHours.weekends.close }}</p>
       </div>
     </section>
-
-    
   </div>
 </template>
 
@@ -52,16 +60,15 @@ import { computed } from 'vue'
 import authors from "../assets/json/authors.json"
 import bookstores from "../assets/json/bookstores.json"
 
-// Activity 2.1
+// Activity 2.1: modernAuthors
 const modernAuthors = computed(() =>
   authors.filter((author) => author.birthYear > 1850)
 )
 
-// Activity 2.2
+// Activity 2.2: allFamousWorks
 const allFamousWorks = computed(() =>
   authors.flatMap((author) => author.famousWorks.map((work) => work.title))
 )
-
 </script>
 
 <style scoped>
