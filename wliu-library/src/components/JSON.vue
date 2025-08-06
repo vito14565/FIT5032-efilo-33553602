@@ -2,6 +2,20 @@
   <div class="json-lab">
     <h1>📚 Library Data</h1>
 
+    <!-- 4.1 Toggle Message -->
+    <section>
+      <h2>Toggle Message</h2>
+      <button @click="showMessage = !showMessage" class="toggle-btn">
+        Toggle Message
+      </button>
+      <p v-if="showMessage" class="message success">
+        ✨ You're a Vue superstar! ✨
+      </p>
+      <p v-else class="message">
+        Click the button to see a message.
+      </p>
+    </section>
+
     <!-- 3.1  -->
     <section>
       <h2>Author Names & Birth Years</h2>
@@ -49,7 +63,7 @@
       </div>
     </section>
 
-    <!-- bookstoredata -->
+    <!-- bookstore data -->
     <section>
       <h2>Bookstore Info</h2>
       <p><strong>Name:</strong> {{ bookstores.name }}</p>
@@ -76,9 +90,12 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import authors from "../assets/json/authors.json"
 import bookstores from "../assets/json/bookstores.json"
+
+// 4.1: 
+const showMessage = ref(false)
 
 // Activity 2.1: modernAuthors
 const modernAuthors = computed(() =>
@@ -103,6 +120,29 @@ h2 {
   margin-top: 20px;
   color: #444;
 }
+
+/* Toggle Message style */
+.toggle-btn {
+  padding: 6px 12px;
+  background-color: #42b983;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.toggle-btn:hover {
+  background-color: #369f6f;
+}
+.message {
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 4px;
+}
+.success {
+  background-color: #e6ffed;
+  border: 1px solid #8ee89e;
+}
+
 .author-card {
   border: 1px solid #ccc;
   padding: 10px;
