@@ -12,6 +12,16 @@
       </ul>
     </section>
 
+    <!-- 3.2 1850 born -->
+    <section>
+      <h2>Authors Born After 1850</h2>
+      <ul>
+        <li v-for="author in modernAuthors" :key="author.id">
+          {{ author.name }} ({{ author.birthYear }})
+        </li>
+      </ul>
+    </section>
+
     <!-- author data -->
     <section>
       <h2>Authors</h2>
@@ -29,7 +39,7 @@
       </div>
     </section>
 
-    <!-- bookstore data -->
+    <!-- bookstroe data -->
     <section>
       <h2>Bookstore Info</h2>
       <p><strong>Name:</strong> {{ bookstores.name }}</p>
