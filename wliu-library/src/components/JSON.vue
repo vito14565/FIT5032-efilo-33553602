@@ -22,6 +22,16 @@
       </ul>
     </section>
 
+    <!-- 3.3  -->
+    <section>
+      <h2>All Famous Works</h2>
+      <ul>
+        <li v-for="work in allFamousWorks" :key="work">
+          {{ work }}
+        </li>
+      </ul>
+    </section>
+
     <!-- author data -->
     <section>
       <h2>Authors</h2>
@@ -39,7 +49,7 @@
       </div>
     </section>
 
-    <!-- bookstroe data -->
+    <!-- bookstoredata -->
     <section>
       <h2>Bookstore Info</h2>
       <p><strong>Name:</strong> {{ bookstores.name }}</p>
