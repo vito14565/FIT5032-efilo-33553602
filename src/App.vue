@@ -1,14 +1,7 @@
 <script setup>
-import MyName from './components/MyName.vue'
+import Form from './components/Form.vue'
 </script>
 
 <template>
-  <h1>Hello from FIT5032</h1>
-  <MyName />
+  <Form />
 </template>
-
-<style scoped>
-h1 {
-  color: #42b983;
-}
-</style>
