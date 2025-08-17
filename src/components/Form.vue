@@ -4,7 +4,7 @@
       <div class="col-md-8 offset-md-2">
         <h1 class="text-center">User Information Form</h1>
 
-        <!-- Form (pure HTML built-in validation) -->
+        <!-- Form (no HTML built-in validation; Vue validation will be added next) -->
         <form ref="formEl" @submit.prevent="submitForm">
           <div class="row mb-3">
             <div class="col-12 col-md-6">
@@ -14,11 +14,6 @@
                 class="form-control"
                 id="username"
                 v-model="formData.username"
-                required
-                minlength="3"
-                maxlength="20"
-                pattern="^[A-Za-z0-9_]+$"
-                title="3–20 characters; letters, numbers, underscore only."
               />
             </div>
             <div class="col-12 col-md-6">
@@ -28,11 +23,6 @@
                 class="form-control"
                 id="password"
                 v-model="formData.password"
-                required
-                minlength="6"
-                maxlength="20"
-                pattern="(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,20}"
-                title="6–20 characters; must include at least one letter and one number."
               />
             </div>
           </div>
@@ -55,7 +45,6 @@
                 id="gender"
                 class="form-select"
                 v-model="formData.gender"
-                required
               >
                 <option value="" disabled>Select gender</option>
                 <option value="female">Female</option>
@@ -72,10 +61,6 @@
               id="reason"
               rows="3"
               v-model="formData.reason"
-              required
-              minlength="10"
-              maxlength="200"
-              title="10–200 characters."
             ></textarea>
           </div>
 
@@ -116,7 +101,7 @@ import { ref } from 'vue'
 
 const formEl = ref(null)
 
-// form state
+// Form state
 const formData = ref({
   username: '',
   password: '',
@@ -127,12 +112,17 @@ const formData = ref({
 
 const submittedCards = ref([])
 
-// submit: rely on native validation first
+// 3.2: errors object to store field error messages (Vue-controlled)
+const errors = ref({
+  username: null,
+  password: null,
+  resident: null,
+  gender: null,
+  reason: null,
+})
+
+// For now submission has no validation (3.3 will add per-field checks)
 function submitForm() {
-  if (formEl.value && !formEl.value.checkValidity()) {
-    formEl.value.reportValidity() // show built-in bubbles
-    return
-  }
   submittedCards.value.push({ ...formData.value })
   clearForm()
 }
@@ -144,6 +134,14 @@ function clearForm() {
     isAustralian: false,
     reason: '',
     gender: ''
+  }
+  // reset errors
+  errors.value = {
+    username: null,
+    password: null,
+    resident: null,
+    gender: null,
+    reason: null,
   }
   formEl.value?.reset()
 }
