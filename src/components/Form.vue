@@ -37,6 +37,7 @@
           </div>
 
           <div class="row mb-3">
+            <!-- Australian Resident -->
             <div class="col-12 col-md-6">
               <div class="form-check">
                 <input
@@ -44,9 +45,11 @@
                   type="checkbox"
                   id="isAustralian"
                   v-model="formData.isAustralian"
+                  @change="() => validateResident(false)"
                 />
                 <label class="form-check-label" for="isAustralian">Australian Resident?</label>
               </div>
+              <div v-if="errors.resident" class="text-danger mt-1">{{ errors.resident }}</div>
             </div>
 
             <!-- Gender -->
@@ -124,6 +127,7 @@ import Column from 'primevue/column'
 
 const formEl = ref(null)
 
+// Reactive form state
 const formData = ref({
   username: '',
   password: '',
@@ -134,6 +138,7 @@ const formData = ref({
 
 const submittedCards = ref([])
 
+// Error messages for all fields
 const errors = ref({
   username: null,
   password: null,
@@ -142,21 +147,33 @@ const errors = ref({
   reason: null,
 })
 
-// Username validation (>= 3 characters)
+/* ============================
+   Validation helpers
+   ============================ */
+
+// Username: >= 3 and no spaces
 const validateName = (onBlur = false) => {
   const val = (formData.value.username || '').trim()
+
   if (val.length < 3) {
     if (onBlur || errors.value.username) {
       errors.value.username = 'Name must be at least 3 characters'
     }
-  } else {
-    errors.value.username = null
+    return
   }
+  if (/\s/.test(val)) {
+    if (onBlur || errors.value.username) {
+      errors.value.username = 'Username cannot contain spaces'
+    }
+    return
+  }
+  errors.value.username = null
 }
 
-// Password validation (>=8 chars, at least one uppercase, one lowercase, one number)
+// Password: >= 8, must include upper, lower, number, and special char
 const validatePassword = (onBlur = false) => {
   const val = formData.value.password || ''
+
   if (val.length < 8) {
     if (onBlur || errors.value.password) {
       errors.value.password = 'Password must be at least 8 characters'
@@ -181,10 +198,16 @@ const validatePassword = (onBlur = false) => {
     }
     return
   }
+  if (!/[!@#$%^&*()[\]{};:'",.<>/?\\|`~_\-+=]/.test(val)) {
+    if (onBlur || errors.value.password) {
+      errors.value.password = 'Password must contain at least one special character'
+    }
+    return
+  }
   errors.value.password = null
 }
 
-// Gender validation (must be selected)
+// Gender: must be selected
 const validateGender = (onBlur = false) => {
   if (!formData.value.gender) {
     if (onBlur || errors.value.gender) {
@@ -195,9 +218,18 @@ const validateGender = (onBlur = false) => {
   }
 }
 
-// Reason validation (10–200 characters)
+// Reason: 10–200, no banned words; if resident checked => >= 20
 const validateReason = (onBlur = false) => {
   const txt = (formData.value.reason || '').trim()
+
+  // banned words: test, spam
+  if (/\b(test|spam)\b/i.test(txt)) {
+    if (onBlur || errors.value.reason) {
+      errors.value.reason = 'Reason cannot contain banned words ("test", "spam")'
+    }
+    return
+  }
+
   if (txt.length < 10) {
     if (onBlur || errors.value.reason) {
       errors.value.reason = 'Reason must be at least 10 characters'
@@ -210,16 +242,51 @@ const validateReason = (onBlur = false) => {
     }
     return
   }
+
+  // tougher rule when resident is checked
+  if (formData.value.isAustralian && txt.length < 20) {
+    if (onBlur || errors.value.reason) {
+      errors.value.reason = 'If Australian Resident is checked, reason must be at least 20 characters'
+    }
+    return
+  }
+
   errors.value.reason = null
 }
+
+// Resident: ties to reason; show message under the checkbox
+const validateResident = (onBlur = false) => {
+  if (formData.value.isAustralian) {
+    // reuse reason validation and mirror its failure under resident
+    validateReason(onBlur)
+    errors.value.resident = errors.value.reason
+      ? 'Please provide a longer reason (≥ 20 characters)'
+      : null
+  } else {
+    errors.value.resident = null
+  }
+}
+
+/* ============================
+   Submit & reset
+   ============================ */
 
 function submitForm() {
   validateName(true)
   validatePassword(true)
   validateGender(true)
   validateReason(true)
+  validateResident(true)
 
-  if (errors.value.username || errors.value.password || errors.value.gender || errors.value.reason) return
+  if (
+    errors.value.username ||
+    errors.value.password ||
+    errors.value.gender ||
+    errors.value.reason ||
+    errors.value.resident
+  ) {
+    return
+  }
 
   const withId = {
     __rowid: (crypto?.randomUUID && crypto.randomUUID()) || Date.now() + Math.random(),
