@@ -14,7 +14,11 @@
                 class="form-control"
                 id="username"
                 v-model="formData.username"
+                @blur="() => validateName(true)"
+                @input="() => validateName(false)"
               />
+              <!-- 3.3: show validation error -->
+              <div v-if="errors.username" class="text-danger mt-1">{{ errors.username }}</div>
             </div>
             <div class="col-12 col-md-6">
               <label for="password" class="form-label">Password</label>
@@ -121,8 +125,27 @@ const errors = ref({
   reason: null,
 })
 
-// For now submission has no validation (3.3 will add per-field checks)
+// 3.3: validate username (>= 3 characters)
+const validateName = (onBlur = false) => {
+  const val = (formData.value.username || '').trim()
+  if (val.length < 3) {
+    // only show the message on blur or when already showing an error
+    if (onBlur || errors.value.username) {
+      errors.value.username = 'Name must be at least 3 characters'
+    }
+  } else {
+    errors.value.username = null
+  }
+}
+
+// submit uses Vue validation (only username for 3.3)
 function submitForm() {
+  // Ensure final check before submit
+  validateName(true)
+
+  // If any error exists, stop submission (only username checked in 3.3)
+  if (errors.value.username) return
+
   submittedCards.value.push({ ...formData.value })
   clearForm()
 }
@@ -160,4 +183,5 @@ function clearForm() {
   border-radius: 10px 10px 0 0;
 }
 .list-group-item { padding: 10px; }
+.text-danger { font-size: 0.9rem; }
 </style>
