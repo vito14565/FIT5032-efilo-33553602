@@ -4,9 +4,10 @@
       <div class="col-md-8 offset-md-2">
         <h1 class="text-center">User Information Form</h1>
 
-        <!-- Form (no HTML built-in validation; Vue validation will be added next) -->
+        <!-- Form (Vue-driven validation; no HTML built-in validation) -->
         <form ref="formEl" @submit.prevent="submitForm">
           <div class="row mb-3">
+            <!-- Username -->
             <div class="col-12 col-md-6">
               <label for="username" class="form-label">Username</label>
               <input
@@ -17,9 +18,10 @@
                 @blur="() => validateName(true)"
                 @input="() => validateName(false)"
               />
-              <!-- 3.3: show validation error -->
               <div v-if="errors.username" class="text-danger mt-1">{{ errors.username }}</div>
             </div>
+
+            <!-- Password -->
             <div class="col-12 col-md-6">
               <label for="password" class="form-label">Password</label>
               <input
@@ -27,7 +29,10 @@
                 class="form-control"
                 id="password"
                 v-model="formData.password"
+                @blur="() => validatePassword(true)"
+                @input="() => validatePassword(false)"
               />
+              <div v-if="errors.password" class="text-danger mt-1">{{ errors.password }}</div>
             </div>
           </div>
 
@@ -55,6 +60,7 @@
                 <option value="male">Male</option>
                 <option value="other">Other</option>
               </select>
+              <!-- gender validation will be added in the next step -->
             </div>
           </div>
 
@@ -66,6 +72,7 @@
               rows="3"
               v-model="formData.reason"
             ></textarea>
+            <!-- reason validation will be added in the next step -->
           </div>
 
           <div class="text-center">
@@ -105,7 +112,7 @@ import { ref } from 'vue'
 
 const formEl = ref(null)
 
-// Form state
+// Reactive form state
 const formData = ref({
   username: '',
   password: '',
@@ -116,7 +123,7 @@ const formData = ref({
 
 const submittedCards = ref([])
 
-// 3.2: errors object to store field error messages (Vue-controlled)
+// Errors for Vue validation
 const errors = ref({
   username: null,
   password: null,
@@ -125,11 +132,10 @@ const errors = ref({
   reason: null,
 })
 
-// 3.3: validate username (>= 3 characters)
+// Username validation (>= 3 characters)
 const validateName = (onBlur = false) => {
   const val = (formData.value.username || '').trim()
   if (val.length < 3) {
-    // only show the message on blur or when already showing an error
     if (onBlur || errors.value.username) {
       errors.value.username = 'Name must be at least 3 characters'
     }
@@ -138,13 +144,47 @@ const validateName = (onBlur = false) => {
   }
 }
 
-// submit uses Vue validation (only username for 3.3)
-function submitForm() {
-  // Ensure final check before submit
-  validateName(true)
+// Password validation (>=8 chars, at least one uppercase, one lowercase, one number)
+const validatePassword = (onBlur = false) => {
+  const val = formData.value.password || ''
 
-  // If any error exists, stop submission (only username checked in 3.3)
-  if (errors.value.username) return
+  if (val.length < 8) {
+    if (onBlur || errors.value.password) {
+      errors.value.password = 'Password must be at least 8 characters'
+    }
+    return
+  }
+
+  if (!/[A-Z]/.test(val)) {
+    if (onBlur || errors.value.password) {
+      errors.value.password = 'Password must contain at least one uppercase letter'
+    }
+    return
+  }
+
+  if (!/[a-z]/.test(val)) {
+    if (onBlur || errors.value.password) {
+      errors.value.password = 'Password must contain at least one lowercase letter'
+    }
+    return
+  }
+
+  if (!/\d/.test(val)) {
+    if (onBlur || errors.value.password) {
+      errors.value.password = 'Password must contain at least one number'
+    }
+    return
+  }
+
+  errors.value.password = null
+}
+
+// Submit with Vue validation for username + password
+function submitForm() {
+  validateName(true)
+  validatePassword(true)
+
+  if (errors.value.username || errors.value.password) return
 
   submittedCards.value.push({ ...formData.value })
   clearForm()
@@ -158,7 +198,6 @@ function clearForm() {
     reason: '',
     gender: ''
   }
-  // reset errors
   errors.value = {
     username: null,
     password: null,
