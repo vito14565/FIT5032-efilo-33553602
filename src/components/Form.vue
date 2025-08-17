@@ -48,19 +48,23 @@
                 <label class="form-check-label" for="isAustralian">Australian Resident?</label>
               </div>
             </div>
+
+            <!-- Gender -->
             <div class="col-12 col-md-6">
               <label for="gender" class="form-label">Gender</label>
               <select
                 id="gender"
                 class="form-select"
                 v-model="formData.gender"
+                @blur="() => validateGender(true)"
+                @change="() => validateGender(false)"
               >
                 <option value="" disabled>Select gender</option>
                 <option value="female">Female</option>
                 <option value="male">Male</option>
                 <option value="other">Other</option>
               </select>
-              <!-- gender validation will be added in the next step -->
+              <div v-if="errors.gender" class="text-danger mt-1">{{ errors.gender }}</div>
             </div>
           </div>
 
@@ -72,7 +76,7 @@
               rows="3"
               v-model="formData.reason"
             ></textarea>
-            <!-- reason validation will be added in the next step -->
+            <!-- reason validation will be added next -->
           </div>
 
           <div class="text-center">
@@ -179,12 +183,24 @@ const validatePassword = (onBlur = false) => {
   errors.value.password = null
 }
 
-// Submit with Vue validation for username + password
+// Gender validation (must be selected)
+const validateGender = (onBlur = false) => {
+  if (!formData.value.gender) {
+    if (onBlur || errors.value.gender) {
+      errors.value.gender = 'Please select a gender.'
+    }
+  } else {
+    errors.value.gender = null
+  }
+}
+
+// Submit with Vue validation for username + password + gender
 function submitForm() {
   validateName(true)
   validatePassword(true)
+  validateGender(true)
 
-  if (errors.value.username || errors.value.password) return
+  if (errors.value.username || errors.value.password || errors.value.gender) return
 
   submittedCards.value.push({ ...formData.value })
   clearForm()
