@@ -4,29 +4,63 @@
       <div class="col-md-8 offset-md-2">
         <h1 class="text-center">User Information Form</h1>
 
-        <!-- Form -->
-        <form @submit.prevent="submitForm">
+        <!-- Form (native + JS validation) -->
+        <form ref="formEl" @submit.prevent="submitForm">
           <div class="row mb-3">
             <div class="col-12 col-md-6">
               <label for="username" class="form-label">Username</label>
-              <input type="text" class="form-control" id="username" v-model="formData.username" />
+              <input
+                type="text"
+                class="form-control"
+                id="username"
+                v-model="formData.username"
+                ref="usernameEl"
+                required
+                minlength="3"
+                maxlength="20"
+                pattern="^[A-Za-z0-9_]+$"
+                title="3–20 characters; letters, numbers, underscore only."
+              />
             </div>
             <div class="col-12 col-md-6">
               <label for="password" class="form-label">Password</label>
-              <input type="password" class="form-control" id="password" v-model="formData.password" />
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                v-model="formData.password"
+                ref="passwordEl"
+                required
+                minlength="6"
+                maxlength="20"
+                pattern="^(?=.*[A-Za-z])(?=.*\d).{6,20}$"
+                title="6–20 characters; must include at least one letter and one number."
+              />
             </div>
           </div>
 
           <div class="row mb-3">
             <div class="col-12 col-md-6">
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="isAustralian" v-model="formData.isAustralian" />
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="isAustralian"
+                  v-model="formData.isAustralian"
+                />
                 <label class="form-check-label" for="isAustralian">Australian Resident?</label>
               </div>
             </div>
             <div class="col-12 col-md-6">
               <label for="gender" class="form-label">Gender</label>
-              <select id="gender" class="form-select" v-model="formData.gender">
+              <select
+                id="gender"
+                class="form-select"
+                v-model="formData.gender"
+                ref="genderEl"
+                required
+              >
+                <option value="" disabled>Select gender</option>
                 <option value="female">Female</option>
                 <option value="male">Male</option>
                 <option value="other">Other</option>
@@ -36,7 +70,17 @@
 
           <div class="mb-3">
             <label for="reason" class="form-label">Reason for joining</label>
-            <textarea class="form-control" id="reason" rows="3" v-model="formData.reason"></textarea>
+            <textarea
+              class="form-control"
+              id="reason"
+              rows="3"
+              v-model="formData.reason"
+              ref="reasonEl"
+              required
+              minlength="10"
+              maxlength="200"
+              title="10–200 characters."
+            ></textarea>
           </div>
 
           <div class="text-center">
@@ -68,6 +112,14 @@
 <script setup>
 import { ref } from 'vue'
 
+const formEl = ref(null)
+
+// Field refs for JS validation + focus
+const usernameEl = ref(null)
+const passwordEl = ref(null)
+const genderEl   = ref(null)
+const reasonEl   = ref(null)
+
 const formData = ref({
   username: '',
   password: '',
@@ -78,7 +130,68 @@ const formData = ref({
 
 const submittedCards = ref([])
 
+// Custom validators (keep messages in English)
+const validators = [
+  () => {
+    const el = usernameEl.value
+    el.setCustomValidity('')
+    const re = /^[A-Za-z0-9_]{3,20}$/
+    if (!re.test(formData.value.username)) {
+      el.setCustomValidity('Username must be 3–20 characters; letters, numbers, underscore only.')
+      return el
+    }
+    return null
+  },
+  () => {
+    const el = passwordEl.value
+    el.setCustomValidity('')
+    const re = /^(?=.*[A-Za-z])(?=.*\d).{6,20}$/
+    if (!re.test(formData.value.password)) {
+      el.setCustomValidity('Password must be 6–20 characters and include at least one letter and one number.')
+      return el
+    }
+    return null
+  },
+  () => {
+    const el = genderEl.value
+    el.setCustomValidity('')
+    if (!formData.value.gender) {
+      el.setCustomValidity('Please select a gender.')
+      return el
+    }
+    return null
+  },
+  () => {
+    const el = reasonEl.value
+    el.setCustomValidity('')
+    const txt = (formData.value.reason || '').trim()
+    if (txt.length < 10 || txt.length > 200) {
+      el.setCustomValidity('Reason must be between 10 and 200 characters.')
+      return el
+    }
+    return null
+  }
+]
+
+// Run native + JS validation; focus first invalid
 function submitForm() {
+  // First, try native validation to highlight required fields
+  if (formEl.value && !formEl.value.checkValidity()) {
+    formEl.value.reportValidity()
+    return
+  }
+
+  // Then, run our custom checks for consistent English messages
+  for (const check of validators) {
+    const invalidEl = check()
+    if (invalidEl) {
+      invalidEl.reportValidity()
+      invalidEl.focus()
+      return
+    }
+  }
+
+  // All good → save card and clear form
   submittedCards.value.push({ ...formData.value })
   clearForm()
 }
@@ -91,6 +204,12 @@ function clearForm() {
     reason: '',
     gender: ''
   }
+  formEl.value?.reset()
+  // Clear any lingering custom messages
+  usernameEl.value?.setCustomValidity('')
+  passwordEl.value?.setCustomValidity('')
+  genderEl.value?.setCustomValidity('')
+  reasonEl.value?.setCustomValidity('')
 }
 </script>
 
@@ -106,7 +225,5 @@ function clearForm() {
   padding: 10px;
   border-radius: 10px 10px 0 0;
 }
-.list-group-item {
-  padding: 10px;
-}
+.list-group-item { padding: 10px; }
 </style>
