@@ -88,25 +88,28 @@
           </div>
         </form>
 
-        <!-- Display cards after submission -->
+        <!-- PrimeVue DataTable -->
         <div class="row mt-5" v-if="submittedCards.length">
-          <div class="d-flex flex-wrap justify-content-start">
-            <div
-              v-for="(card, index) in submittedCards"
-              :key="index"
-              class="card m-2"
-              style="width: 18rem;"
-            >
-              <div class="card-header">User Information</div>
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item">Username: {{ card.username }}</li>
-                <li class="list-group-item">Password: {{ card.password }}</li>
-                <li class="list-group-item">Australian Resident: {{ card.isAustralian ? 'Yes' : 'No' }}</li>
-                <li class="list-group-item">Gender: {{ card.gender }}</li>
-                <li class="list-group-item">Reason: {{ card.reason }}</li>
-              </ul>
-            </div>
-          </div>
+          <h3 class="mb-3">Submitted Users</h3>
+          <DataTable
+            :value="submittedCards"
+            dataKey="__rowid"
+            :paginator="true"
+            :rows="5"
+            sortMode="multiple"
+            responsiveLayout="scroll"
+            class="p-datatable-sm"
+          >
+            <Column field="username" header="Username" sortable />
+            <Column field="password" header="Password" />
+            <Column field="isAustralian" header="Australian Resident" sortable>
+              <template #body="{ data }">
+                {{ data.isAustralian ? 'Yes' : 'No' }}
+              </template>
+            </Column>
+            <Column field="gender" header="Gender" sortable />
+            <Column field="reason" header="Reason" style="min-width: 240px" />
+          </DataTable>
         </div>
 
       </div>
@@ -116,10 +119,11 @@
 
 <script setup>
 import { ref } from 'vue'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
 
 const formEl = ref(null)
 
-// Reactive form state
 const formData = ref({
   username: '',
   password: '',
@@ -130,7 +134,6 @@ const formData = ref({
 
 const submittedCards = ref([])
 
-// Errors for Vue validation
 const errors = ref({
   username: null,
   password: null,
@@ -154,7 +157,6 @@ const validateName = (onBlur = false) => {
 // Password validation (>=8 chars, at least one uppercase, one lowercase, one number)
 const validatePassword = (onBlur = false) => {
   const val = formData.value.password || ''
-
   if (val.length < 8) {
     if (onBlur || errors.value.password) {
       errors.value.password = 'Password must be at least 8 characters'
@@ -211,7 +213,6 @@ const validateReason = (onBlur = false) => {
   errors.value.reason = null
 }
 
-// Submit with Vue validation for all fields added so far
 function submitForm() {
   validateName(true)
   validatePassword(true)
@@ -220,7 +221,11 @@ function submitForm() {
 
   if (errors.value.username || errors.value.password || errors.value.gender || errors.value.reason) return
 
-  submittedCards.value.push({ ...formData.value })
+  const withId = {
+    __rowid: (crypto?.randomUUID && crypto.randomUUID()) || Date.now() + Math.random(),
+    ...formData.value
+  }
+  submittedCards.value.push(withId)
   clearForm()
 }
 
@@ -244,17 +249,6 @@ function clearForm() {
 </script>
 
 <style scoped>
-.card {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-.card-header {
-  background-color: #275FDA;
-  color: white;
-  padding: 10px;
-  border-radius: 10px 10px 0 0;
-}
-.list-group-item { padding: 10px; }
 .text-danger { font-size: 0.9rem; }
+.p-datatable { width: 100%; }
 </style>
