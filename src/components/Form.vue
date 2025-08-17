@@ -4,7 +4,7 @@
       <div class="col-md-8 offset-md-2">
         <h1 class="text-center">User Information Form</h1>
 
-        <!-- Form (native + JS validation) -->
+        <!-- Form (pure HTML built-in validation) -->
         <form ref="formEl" @submit.prevent="submitForm">
           <div class="row mb-3">
             <div class="col-12 col-md-6">
@@ -14,7 +14,6 @@
                 class="form-control"
                 id="username"
                 v-model="formData.username"
-                ref="usernameEl"
                 required
                 minlength="3"
                 maxlength="20"
@@ -29,11 +28,10 @@
                 class="form-control"
                 id="password"
                 v-model="formData.password"
-                ref="passwordEl"
                 required
                 minlength="6"
                 maxlength="20"
-                pattern="^(?=.*[A-Za-z])(?=.*\d).{6,20}$"
+                pattern="(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,20}"
                 title="6–20 characters; must include at least one letter and one number."
               />
             </div>
@@ -57,7 +55,6 @@
                 id="gender"
                 class="form-select"
                 v-model="formData.gender"
-                ref="genderEl"
                 required
               >
                 <option value="" disabled>Select gender</option>
@@ -75,7 +72,6 @@
               id="reason"
               rows="3"
               v-model="formData.reason"
-              ref="reasonEl"
               required
               minlength="10"
               maxlength="200"
@@ -92,7 +88,12 @@
         <!-- Display cards after submission -->
         <div class="row mt-5" v-if="submittedCards.length">
           <div class="d-flex flex-wrap justify-content-start">
-            <div v-for="(card, index) in submittedCards" :key="index" class="card m-2" style="width: 18rem;">
+            <div
+              v-for="(card, index) in submittedCards"
+              :key="index"
+              class="card m-2"
+              style="width: 18rem;"
+            >
               <div class="card-header">User Information</div>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">Username: {{ card.username }}</li>
@@ -104,6 +105,7 @@
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -114,12 +116,7 @@ import { ref } from 'vue'
 
 const formEl = ref(null)
 
-// Field refs for JS validation + focus
-const usernameEl = ref(null)
-const passwordEl = ref(null)
-const genderEl   = ref(null)
-const reasonEl   = ref(null)
-
+// form state
 const formData = ref({
   username: '',
   password: '',
@@ -130,68 +127,12 @@ const formData = ref({
 
 const submittedCards = ref([])
 
-// Custom validators (keep messages in English)
-const validators = [
-  () => {
-    const el = usernameEl.value
-    el.setCustomValidity('')
-    const re = /^[A-Za-z0-9_]{3,20}$/
-    if (!re.test(formData.value.username)) {
-      el.setCustomValidity('Username must be 3–20 characters; letters, numbers, underscore only.')
-      return el
-    }
-    return null
-  },
-  () => {
-    const el = passwordEl.value
-    el.setCustomValidity('')
-    const re = /^(?=.*[A-Za-z])(?=.*\d).{6,20}$/
-    if (!re.test(formData.value.password)) {
-      el.setCustomValidity('Password must be 6–20 characters and include at least one letter and one number.')
-      return el
-    }
-    return null
-  },
-  () => {
-    const el = genderEl.value
-    el.setCustomValidity('')
-    if (!formData.value.gender) {
-      el.setCustomValidity('Please select a gender.')
-      return el
-    }
-    return null
-  },
-  () => {
-    const el = reasonEl.value
-    el.setCustomValidity('')
-    const txt = (formData.value.reason || '').trim()
-    if (txt.length < 10 || txt.length > 200) {
-      el.setCustomValidity('Reason must be between 10 and 200 characters.')
-      return el
-    }
-    return null
-  }
-]
-
-// Run native + JS validation; focus first invalid
+// submit: rely on native validation first
 function submitForm() {
-  // First, try native validation to highlight required fields
   if (formEl.value && !formEl.value.checkValidity()) {
-    formEl.value.reportValidity()
+    formEl.value.reportValidity() // show built-in bubbles
     return
   }
-
-  // Then, run our custom checks for consistent English messages
-  for (const check of validators) {
-    const invalidEl = check()
-    if (invalidEl) {
-      invalidEl.reportValidity()
-      invalidEl.focus()
-      return
-    }
-  }
-
-  // All good → save card and clear form
   submittedCards.value.push({ ...formData.value })
   clearForm()
 }
@@ -205,11 +146,6 @@ function clearForm() {
     gender: ''
   }
   formEl.value?.reset()
-  // Clear any lingering custom messages
-  usernameEl.value?.setCustomValidity('')
-  passwordEl.value?.setCustomValidity('')
-  genderEl.value?.setCustomValidity('')
-  reasonEl.value?.setCustomValidity('')
 }
 </script>
 
