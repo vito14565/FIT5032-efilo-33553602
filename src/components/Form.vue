@@ -68,6 +68,7 @@
             </div>
           </div>
 
+          <!-- Reason -->
           <div class="mb-3">
             <label for="reason" class="form-label">Reason for joining</label>
             <textarea
@@ -75,8 +76,10 @@
               id="reason"
               rows="3"
               v-model="formData.reason"
+              @blur="() => validateReason(true)"
+              @input="() => validateReason(false)"
             ></textarea>
-            <!-- reason validation will be added next -->
+            <div v-if="errors.reason" class="text-danger mt-1">{{ errors.reason }}</div>
           </div>
 
           <div class="text-center">
@@ -158,28 +161,24 @@ const validatePassword = (onBlur = false) => {
     }
     return
   }
-
   if (!/[A-Z]/.test(val)) {
     if (onBlur || errors.value.password) {
       errors.value.password = 'Password must contain at least one uppercase letter'
     }
     return
   }
-
   if (!/[a-z]/.test(val)) {
     if (onBlur || errors.value.password) {
       errors.value.password = 'Password must contain at least one lowercase letter'
     }
     return
   }
-
   if (!/\d/.test(val)) {
     if (onBlur || errors.value.password) {
       errors.value.password = 'Password must contain at least one number'
     }
     return
   }
-
   errors.value.password = null
 }
 
@@ -194,13 +193,32 @@ const validateGender = (onBlur = false) => {
   }
 }
 
-// Submit with Vue validation for username + password + gender
+// Reason validation (10–200 characters)
+const validateReason = (onBlur = false) => {
+  const txt = (formData.value.reason || '').trim()
+  if (txt.length < 10) {
+    if (onBlur || errors.value.reason) {
+      errors.value.reason = 'Reason must be at least 10 characters'
+    }
+    return
+  }
+  if (txt.length > 200) {
+    if (onBlur || errors.value.reason) {
+      errors.value.reason = 'Reason must be less than or equal to 200 characters'
+    }
+    return
+  }
+  errors.value.reason = null
+}
+
+// Submit with Vue validation for all fields added so far
 function submitForm() {
   validateName(true)
   validatePassword(true)
   validateGender(true)
+  validateReason(true)
 
-  if (errors.value.username || errors.value.password || errors.value.gender) return
+  if (errors.value.username || errors.value.password || errors.value.gender || errors.value.reason) return
 
   submittedCards.value.push({ ...formData.value })
   clearForm()
