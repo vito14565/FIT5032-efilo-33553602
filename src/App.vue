@@ -1,19 +1,19 @@
 <template>
   <div class="main-container">
+    <!-- Use BHeader component for navigation -->
     <header>
-      <!-- Navigation header (we can add navigation links here later) -->
-      <h1>📚 FIT5032 Week1 Demo</h1>
+      <BHeader />
     </header>
 
+    <!-- Router view will load HomeView, AboutView, etc. -->
     <main class="main-box">
-      <!-- Render the component that matches the current route -->
       <router-view></router-view>
     </main>
   </div>
 </template>
 
 <script setup>
-// No need to import Form or JSON anymore because we are using Vue Router
+import BHeader from './components/BHeader.vue' // import the header component
 </script>
 
 <style>
