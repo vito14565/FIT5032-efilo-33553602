@@ -4,9 +4,9 @@
       <div class="col-md-8 offset-md-2">
         <h1 class="text-center">User Information Form</h1>
 
-        <!-- Form -->
+        <!-- User Information Form -->
         <form ref="formEl" @submit.prevent="submitForm">
-          <!-- row 1: username | gender -->
+          <!-- Row 1: username | gender -->
           <div class="row mb-3">
             <!-- Username -->
             <div class="col-12 col-md-6">
@@ -41,9 +41,8 @@
             </div>
           </div>
 
-          <!-- row 2: password | confirm password -->
+          <!-- Row 2: password | confirm password -->
           <div class="row mb-3">
-            <!-- Password -->
             <div class="col-12 col-md-6">
               <label for="password" class="form-label">Password</label>
               <input
@@ -57,7 +56,6 @@
               <div v-if="errors.password" class="text-danger mt-1">{{ errors.password }}</div>
             </div>
 
-            <!-- Confirm password -->
             <div class="col-12 col-md-6">
               <label for="confirm-password" class="form-label">Confirm password</label>
               <input
@@ -73,7 +71,7 @@
             </div>
           </div>
 
-          <!-- row 3: resident -->
+          <!-- Row 3: resident -->
           <div class="row mb-3">
             <div class="col-12 col-md-6">
               <div class="form-check">
@@ -90,7 +88,7 @@
             </div>
           </div>
 
-          <!-- row 4: reason -->
+          <!-- Row 4: reason -->
           <div class="row mb-3">
             <div class="col-12">
               <label for="reason" class="form-label">Reason for joining</label>
@@ -102,13 +100,13 @@
                 @blur="() => validateReason(true)"
                 @input="() => validateReason(false)"
               ></textarea>
-              <!-- Error first, then friendly hint -->
+              <!-- Show error first, then positive hint -->
               <div v-if="errors.reason" class="text-danger mt-1">{{ errors.reason }}</div>
               <div v-else-if="friendHint" class="text-success mt-1">Great to have a friend</div>
             </div>
           </div>
 
-          <!-- row 5: suburb (two-way binding with v-model) -->
+          <!-- Row 5: suburb -->
           <div class="row mb-3">
             <div class="col-12">
               <label for="suburb" class="form-label">Suburb</label>
@@ -121,6 +119,7 @@
             </div>
           </div>
 
+          <!-- Form buttons -->
           <div class="text-center">
             <button type="submit" class="btn btn-primary me-2">Submit</button>
             <button type="button" class="btn btn-secondary" @click="clearForm">Clear</button>
@@ -191,8 +190,80 @@ const friendHint = computed(() =>
   /\bfriend\b/i.test(formData.value.reason || '') && !errors.value.reason
 )
 
+// Validation methods
+const validateName = (onBlur = false) => {
+  const val = (formData.value.username || '').trim()
+  if (val.length < 3) {
+    if (onBlur || errors.value.username) errors.value.username = 'Name must be at least 3 characters'
+    return
+  }
+  errors.value.username = null
+}
+
+const validatePassword = (onBlur = false) => {
+  const val = formData.value.password || ''
+  if (val.length < 8) {
+    if (onBlur || errors.value.password) errors.value.password = 'Password must be at least 8 characters'
+    return
+  }
+  errors.value.password = null
+}
+
+const validateConfirmPassword = (onBlur = false) => {
+  if (formData.value.password !== formData.value.confirmPassword) {
+    if (onBlur || errors.value.confirmPassword) {
+      errors.value.confirmPassword = 'Passwords do not match.'
+    }
+  } else {
+    errors.value.confirmPassword = null
+  }
+}
+
+const validateGender = (onBlur = false) => {
+  if (!formData.value.gender) {
+    if (onBlur || errors.value.gender) errors.value.gender = 'Please select a gender.'
+  } else {
+    errors.value.gender = null
+  }
+}
+
+const validateReason = (onBlur = false) => {
+  const txt = (formData.value.reason || '').trim()
+  if (txt.length < 10) {
+    if (onBlur || errors.value.reason) errors.value.reason = 'Reason must be at least 10 characters'
+    return
+  }
+  errors.value.reason = null
+}
+
+const validateResident = (onBlur = false) => {
+  if (formData.value.isAustralian && (formData.value.reason || '').length < 20) {
+    errors.value.resident = 'If Australian Resident is checked, reason must be at least 20 characters'
+  } else {
+    errors.value.resident = null
+  }
+}
+
 // Submit handler
 function submitForm() {
+  validateName(true)
+  validatePassword(true)
+  validateConfirmPassword(true)
+  validateGender(true)
+  validateReason(true)
+  validateResident(true)
+
+  if (
+    errors.value.username ||
+    errors.value.password ||
+    errors.value.confirmPassword ||
+    errors.value.gender ||
+    errors.value.reason ||
+    errors.value.resident
+  ) {
+    return
+  }
+
   const withId = {
     __rowid: (crypto?.randomUUID && crypto.randomUUID()) || Date.now() + Math.random(),
     ...formData.value
