@@ -43,6 +43,7 @@
 
           <!-- row 2: password | confirm password -->
           <div class="row mb-3">
+            <!-- Password -->
             <div class="col-12 col-md-6">
               <label for="password" class="form-label">Password</label>
               <input
@@ -56,6 +57,7 @@
               <div v-if="errors.password" class="text-danger mt-1">{{ errors.password }}</div>
             </div>
 
+            <!-- Confirm password -->
             <div class="col-12 col-md-6">
               <label for="confirm-password" class="form-label">Confirm password</label>
               <input
@@ -100,12 +102,13 @@
                 @blur="() => validateReason(true)"
                 @input="() => validateReason(false)"
               ></textarea>
+              <!-- Error first, then friendly hint -->
               <div v-if="errors.reason" class="text-danger mt-1">{{ errors.reason }}</div>
               <div v-else-if="friendHint" class="text-success mt-1">Great to have a friend</div>
             </div>
           </div>
 
-          <!-- row 5: Suburb (改成 v-model 雙向綁定) -->
+          <!-- row 5: suburb (two-way binding with v-model) -->
           <div class="row mb-3">
             <div class="col-12">
               <label for="suburb" class="form-label">Suburb</label>
@@ -160,6 +163,7 @@ import Column from 'primevue/column'
 
 const formEl = ref(null)
 
+// Form state
 const formData = ref({
   username: '',
   password: '',
@@ -172,6 +176,7 @@ const formData = ref({
 
 const submittedCards = ref([])
 
+// Error messages
 const errors = ref({
   username: null,
   password: null,
@@ -181,14 +186,13 @@ const errors = ref({
   reason: null,
 })
 
+// Positive hint when "friend" is mentioned
 const friendHint = computed(() =>
   /\bfriend\b/i.test(formData.value.reason || '') && !errors.value.reason
 )
 
-/* validation 同前，略... (保持不變) */
-
+// Submit handler
 function submitForm() {
-  // 驗證略...
   const withId = {
     __rowid: (crypto?.randomUUID && crypto.randomUUID()) || Date.now() + Math.random(),
     ...formData.value
@@ -197,6 +201,7 @@ function submitForm() {
   clearForm()
 }
 
+// Reset handler
 function clearForm() {
   formData.value = {
     username: '',

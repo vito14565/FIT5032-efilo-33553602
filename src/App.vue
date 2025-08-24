@@ -1,39 +1,26 @@
-<script setup>
-import Form from './components/Form.vue'
-import JSON from './components/JSON.vue'
-import { ref } from 'vue'
-
-// State to control which component is displayed
-const currentView = ref('form')
-</script>
-
 <template>
-  <div>
-    <h1>📚 FIT5032 Week1 Demo</h1>
+  <div class="main-container">
+    <header>
+      <!-- Navigation header (we can add navigation links here later) -->
+      <h1>📚 FIT5032 Week1 Demo</h1>
+    </header>
 
-    <!-- Buttons to switch between components -->
-    <div style="margin-bottom: 20px;">
-      <button @click="currentView = 'form'">Show Form</button>
-      <button @click="currentView = 'json'">Show JSON Lab</button>
-    </div>
-
-    <!-- Render component based on currentView -->
-    <Form v-if="currentView === 'form'" />
-    <JSON v-else />
+    <main class="main-box">
+      <!-- Render the component that matches the current route -->
+      <router-view></router-view>
+    </main>
   </div>
 </template>
 
-<style scoped>
-button {
-  margin-right: 10px;
-  padding: 6px 12px;
-  background: #42b983;
-  border: none;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
+<script setup>
+// No need to import Form or JSON anymore because we are using Vue Router
+</script>
+
+<style>
+.main-container {
+  padding: 20px;
 }
-button:hover {
-  background: #369f6f;
+.main-box {
+  margin-top: 20px;
 }
 </style>
