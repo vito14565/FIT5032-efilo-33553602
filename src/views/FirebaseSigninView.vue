@@ -4,14 +4,15 @@
       <div class="col-md-6">
         <h2 class="text-center mb-4">Login</h2>
 
+        <!-- Login form -->
         <form @submit.prevent="handleLogin">
-          <!-- Username input -->
+          <!-- Email input -->
           <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
+            <label for="email" class="form-label">Email</label>
             <input
-              type="text"
-              id="username"
-              v-model="username"
+              type="email"
+              id="email"
+              v-model="email"
               class="form-control"
               required
             />
@@ -33,7 +34,9 @@
           <div v-if="error" class="text-danger mb-3">{{ error }}</div>
 
           <!-- Submit button -->
-          <button type="submit" class="btn btn-primary w-100">Login</button>
+          <button type="submit" class="btn btn-primary w-100" :disabled="loading">
+            {{ loading ? 'Signing in...' : 'Login' }}
+          </button>
         </form>
       </div>
     </div>
@@ -43,26 +46,30 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '../firebase'
 
 // Form state
-const username = ref('')
+const email = ref('')
 const password = ref('')
 const error = ref('')
+const loading = ref(false)
 
 const router = useRouter()
 
-// Demo credentials
-const validUser = 'admin'
-const validPass = '1234'
-
-// Handle login
-function handleLogin() {
-  if (username.value === validUser && password.value === validPass) {
-    // Save authentication state in localStorage
-    localStorage.setItem('isAuthenticated', 'true')
+// Handle login with Firebase
+async function handleLogin() {
+  error.value = ''
+  loading.value = true
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email.value, password.value)
+    console.log('[Login] user =', { uid: cred.user.uid, email: cred.user.email })
     router.push('/') // Redirect to Home after login
-  } else {
-    error.value = 'Invalid username or password'
+  } catch (e) {
+    console.error(e)
+    error.value = 'Invalid email or password'
+  } finally {
+    loading.value = false
   }
 }
 </script>

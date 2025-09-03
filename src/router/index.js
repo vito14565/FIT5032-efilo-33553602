@@ -1,24 +1,25 @@
+// src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
-import LoginView from '../views/LoginView.vue'   // 👈 Add LoginView
+import FirebaseSigninView from '../views/FirebaseSigninView.vue' // ← use the real file name
+
+// Firebase Auth
+import { auth } from '../firebase'
+import { onAuthStateChanged } from 'firebase/auth'
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: HomeView
-  },
+  { path: '/', name: 'Home', component: HomeView },
   {
     path: '/about',
     name: 'About',
     component: AboutView,
-    meta: { requiresAuth: true }   // 👈 Mark this page as requiring authentication
+    meta: { requiresAuth: true } // pages that require authentication
   },
   {
-    path: '/login',
+    path: '/login',                // keep /login; or change to /FireLogin if you want to match the handout
     name: 'Login',
-    component: LoginView
+    component: FirebaseSigninView  // ← use the same component name here
   }
 ]
 
@@ -27,14 +28,37 @@ const router = createRouter({
   routes
 })
 
-// 🔒 Navigation guard: check authentication status
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true'
-  
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login')  // Not authenticated → redirect to login page
+/**
+ * Wait for the initial Firebase auth state.
+ * auth.currentUser can be null until Firebase finishes initializing,
+ * so we subscribe once then immediately unsubscribe.
+ */
+function getCurrentUser() {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      user => {
+        unsubscribe()
+        resolve(user)
+      },
+      reject
+    )
+  })
+}
+
+// Global navigation guard: protect routes with meta.requiresAuth
+router.beforeEach(async (to, from, next) => {
+  if (to.meta && to.meta.requiresAuth) {
+    try {
+      const user = await getCurrentUser()
+      if (user) next()
+      else next({ name: 'Login', query: { redirect: to.fullPath } })
+    } catch (e) {
+      console.error('[Router Guard] auth check failed:', e)
+      next({ name: 'Login' })
+    }
   } else {
-    next()          // Authenticated → proceed to target route
+    next()
   }
 })
 

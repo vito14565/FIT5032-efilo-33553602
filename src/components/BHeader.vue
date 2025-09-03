@@ -1,7 +1,7 @@
 <template>
   <!-- Using Bootstrap header navigation -->
   <div class="container">
-    <header class="d-flex justify-content-center py-3">
+    <header class="d-flex justify-content-between align-items-center py-3">
       <ul class="nav nav-pills">
         <!-- Always show Home -->
         <li class="nav-item">
@@ -31,44 +31,59 @@
           </button>
         </li>
       </ul>
+
+      <!-- Show current user email when authenticated -->
+      <div v-if="isAuthenticated" class="small text-muted">
+        <!-- Safely show email -->
+        {{ currentEmail }}
+      </div>
     </header>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
+import { auth } from '../firebase'
 
 const router = useRouter()
 const route = useRoute()
+
+// reactive auth state
 const isAuthenticated = ref(false)
+const currentEmail = ref('')
 
-// Function to check auth state
-function checkAuth() {
-  isAuthenticated.value = localStorage.getItem('isAuthenticated') === 'true'
-}
+// keep unsubscribe function
+let unsubscribeAuth = null
 
-// Run once on mount
+// subscribe to Firebase auth state
 onMounted(() => {
-  checkAuth()
+  unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+    isAuthenticated.value = !!user
+    currentEmail.value = user?.email ?? ''
+  })
 })
 
-// Watch route changes → update state
-router.afterEach(() => {
-  checkAuth()
+// cleanup listener
+onUnmounted(() => {
+  if (typeof unsubscribeAuth === 'function') unsubscribeAuth()
 })
 
-// Logout function
-function logout() {
-  localStorage.removeItem('isAuthenticated')
-  isAuthenticated.value = false
-  router.push('/login')
+// sign out and redirect to login
+async function logout() {
+  try {
+    await signOut(auth)
+    router.push({ name: 'Login', query: { redirect: route.fullPath } })
+  } catch (e) {
+    console.error('[Logout] failed:', e)
+  }
 }
 </script>
 
 <style scoped>
 .nav-link.active {
   background-color: #0d6efd;
-  color: white;
+  color: #fff;
 }
 </style>
