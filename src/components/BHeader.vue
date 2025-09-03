@@ -17,10 +17,15 @@
           </router-link>
         </li>
 
-        <!-- Show Login if NOT authenticated -->
+        <!-- Show Login/Register if NOT authenticated -->
         <li class="nav-item" v-if="!isAuthenticated">
-          <router-link to="/login" class="nav-link" active-class="active">
+          <router-link to="/FireLogin" class="nav-link" active-class="active">
             Login
+          </router-link>
+        </li>
+        <li class="nav-item" v-if="!isAuthenticated">
+          <router-link to="/FireRegister" class="nav-link" active-class="active">
+            Register
           </router-link>
         </li>
 
@@ -34,7 +39,6 @@
 
       <!-- Show current user email when authenticated -->
       <div v-if="isAuthenticated" class="small text-muted">
-        <!-- Safely show email -->
         {{ currentEmail }}
       </div>
     </header>
@@ -70,11 +74,11 @@ onUnmounted(() => {
   if (typeof unsubscribeAuth === 'function') unsubscribeAuth()
 })
 
-// sign out and redirect to login
+// sign out and redirect to FireLogin
 async function logout() {
   try {
     await signOut(auth)
-    router.push({ name: 'Login', query: { redirect: route.fullPath } })
+    router.push({ name: 'FireLogin', query: { redirect: route.fullPath } })
   } catch (e) {
     console.error('[Logout] failed:', e)
   }
