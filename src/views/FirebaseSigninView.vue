@@ -4,8 +4,17 @@
       <div class="col-md-6">
         <h2 class="text-center mb-4">Login</h2>
 
+        <!-- Success message -->
+        <div
+          v-if="successMessage"
+          class="alert alert-success text-center"
+          role="alert"
+        >
+          {{ successMessage }}
+        </div>
+
         <!-- Login form -->
-        <form @submit.prevent="handleLogin">
+        <form v-if="!successMessage" @submit.prevent="handleLogin">
           <!-- Email input -->
           <div class="mb-3">
             <label for="email" class="form-label">Email</label>
@@ -45,7 +54,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../firebase'
 
@@ -54,8 +63,10 @@ const email = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
+const successMessage = ref('')
 
 const router = useRouter()
+const route = useRoute()
 
 // Handle login with Firebase
 async function handleLogin() {
@@ -64,7 +75,15 @@ async function handleLogin() {
   try {
     const cred = await signInWithEmailAndPassword(auth, email.value, password.value)
     console.log('[Login] user =', { uid: cred.user.uid, email: cred.user.email })
-    router.push('/') // Redirect to Home after login
+
+    // Show success message
+    successMessage.value = 'Login successful! Redirecting...'
+
+    // Redirect after 2 seconds (either to intended page or home)
+    setTimeout(() => {
+      const redirect = route.query.redirect || '/'
+      router.push(redirect)
+    }, 2000)
   } catch (e) {
     console.error(e)
     error.value = 'Invalid email or password'
