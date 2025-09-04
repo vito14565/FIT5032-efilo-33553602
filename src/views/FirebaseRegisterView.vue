@@ -48,6 +48,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth'
+import { getFirestore, doc, setDoc, serverTimestamp } from 'firebase/firestore'
 
 const email = ref('')
 const password = ref('')
@@ -55,6 +56,7 @@ const error = ref('')
 const successMessage = ref('')
 const router = useRouter()
 const auth = getAuth()
+const db = getFirestore()
 
 const register = async () => {
   error.value = ''
@@ -66,6 +68,13 @@ const register = async () => {
       password.value
     )
     console.log('Firebase Register Successful!', cred.user)
+
+    // ➕ Save user document in Firestore
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      email: email.value,
+      role: 'user',          // default role, can change to "admin" manually in Console
+      createdAt: serverTimestamp()
+    })
 
     // Immediately sign out so user must login manually
     await signOut(auth)

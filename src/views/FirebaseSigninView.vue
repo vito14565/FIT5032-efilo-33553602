@@ -56,6 +56,7 @@
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { signInWithEmailAndPassword } from 'firebase/auth'
+import { getFirestore, doc, getDoc } from 'firebase/firestore'
 import { auth } from '../firebase'
 
 // Form state
@@ -67,6 +68,7 @@ const successMessage = ref('')
 
 const router = useRouter()
 const route = useRoute()
+const db = getFirestore()
 
 // Handle login with Firebase
 async function handleLogin() {
@@ -75,6 +77,16 @@ async function handleLogin() {
   try {
     const cred = await signInWithEmailAndPassword(auth, email.value, password.value)
     console.log('[Login] user =', { uid: cred.user.uid, email: cred.user.email })
+
+    // 🔑 Fetch role from Firestore
+    const userDoc = await getDoc(doc(db, 'users', cred.user.uid))
+    if (userDoc.exists()) {
+      const role = userDoc.data().role
+      localStorage.setItem('role', role)
+      console.log('[Login] role =', role)
+    } else {
+      console.warn('[Login] No role found in Firestore!')
+    }
 
     // Show success message
     successMessage.value = 'Login successful! Redirecting...'

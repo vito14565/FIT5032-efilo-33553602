@@ -10,8 +10,8 @@
           </router-link>
         </li>
 
-        <!-- Only show About if user is logged in -->
-        <li class="nav-item" v-if="isAuthenticated">
+        <!-- Only show About if user is admin -->
+        <li class="nav-item" v-if="isAuthenticated && role === 'admin'">
           <router-link to="/about" class="nav-link" active-class="active">
             About
           </router-link>
@@ -37,9 +37,9 @@
         </li>
       </ul>
 
-      <!-- Show current user email when authenticated -->
+      <!-- Show current user email and role when authenticated -->
       <div v-if="isAuthenticated" class="small text-muted">
-        {{ currentEmail }}
+        {{ currentEmail }} ({{ role }})
       </div>
     </header>
   </div>
@@ -57,6 +57,7 @@ const route = useRoute()
 // reactive auth state
 const isAuthenticated = ref(false)
 const currentEmail = ref('')
+const role = ref('')
 
 // keep unsubscribe function
 let unsubscribeAuth = null
@@ -66,6 +67,8 @@ onMounted(() => {
   unsubscribeAuth = onAuthStateChanged(auth, (user) => {
     isAuthenticated.value = !!user
     currentEmail.value = user?.email ?? ''
+    // get role from localStorage (set during login)
+    role.value = localStorage.getItem('role') || ''
   })
 })
 
@@ -78,6 +81,7 @@ onUnmounted(() => {
 async function logout() {
   try {
     await signOut(auth)
+    localStorage.removeItem('role')
     router.push({ name: 'FireLogin', query: { redirect: route.fullPath } })
   } catch (e) {
     console.error('[Logout] failed:', e)
