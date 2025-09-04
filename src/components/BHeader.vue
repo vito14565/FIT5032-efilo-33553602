@@ -31,9 +31,9 @@
 
         <!-- Show Logout if authenticated -->
         <li class="nav-item" v-if="isAuthenticated">
-          <button class="btn btn-link nav-link" @click="logout">
+          <router-link to="/logout" class="nav-link" active-class="active">
             Logout
-          </button>
+          </router-link>
         </li>
       </ul>
 
@@ -47,12 +47,8 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { onAuthStateChanged, signOut } from 'firebase/auth'
+import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../firebase'
-
-const router = useRouter()
-const route = useRoute()
 
 // reactive auth state
 const isAuthenticated = ref(false)
@@ -76,17 +72,6 @@ onMounted(() => {
 onUnmounted(() => {
   if (typeof unsubscribeAuth === 'function') unsubscribeAuth()
 })
-
-// sign out and redirect to FireLogin
-async function logout() {
-  try {
-    await signOut(auth)
-    localStorage.removeItem('role')
-    router.push({ name: 'FireLogin', query: { redirect: route.fullPath } })
-  } catch (e) {
-    console.error('[Logout] failed:', e)
-  }
-}
 </script>
 
 <style scoped>
