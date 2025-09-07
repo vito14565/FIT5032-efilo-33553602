@@ -1,10 +1,13 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
+
+// Views
 import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
 import FirebaseSigninView from '../views/FirebaseSigninView.vue'
 import FirebaseRegisterView from '../views/FirebaseRegisterView.vue'
-import LogoutView from '../views/LogoutView.vue' // 👈 add
+import LogoutView from '../views/LogoutView.vue'
+import AddBookView from '../views/AddBookView.vue' // ← new
 
 // Firebase Auth
 import { auth } from '../firebase/init'
@@ -13,19 +16,28 @@ import { onAuthStateChanged } from 'firebase/auth'
 const routes = [
   { path: '/', name: 'Home', component: HomeView },
 
-  // Only admins should see About (optional but recommended)
+  // Optional: only admins can access About
   {
     path: '/about',
     name: 'About',
     component: AboutView,
-    meta: { requiresAuth: true, requiresRole: 'admin' } // 👈 role guard
+    meta: { requiresAuth: true, requiresRole: 'admin' }
   },
 
+  // Add Book page (per Lab 8.4.2). Public by default for the lab.
+  // If you want it protected, add `meta: { requiresAuth: true }`.
+  {
+    path: '/addbook',
+    name: 'AddBook',
+    component: AddBookView
+  },
+
+  // Auth flows
   {
     path: '/FireLogin',
     name: 'FireLogin',
     component: FirebaseSigninView,
-    alias: ['/login'] // keep old /login working
+    alias: ['/login']
   },
   {
     path: '/FireRegister',
@@ -33,7 +45,7 @@ const routes = [
     component: FirebaseRegisterView
   },
 
-  // Logout page for Task 7.2 Screenshot set 2
+  // Logout page triggers signOut inside the view
   {
     path: '/logout',
     name: 'Logout',
@@ -47,7 +59,10 @@ const router = createRouter({
   routes
 })
 
-/** Wait for initial Firebase auth state (auth.currentUser is async) */
+/**
+ * Wait for the initial Firebase auth state to resolve.
+ * (auth.currentUser is not immediately available on first load)
+ */
 function getCurrentUser() {
   return new Promise((resolve, reject) => {
     const unsub = onAuthStateChanged(
@@ -58,10 +73,14 @@ function getCurrentUser() {
   })
 }
 
-/** Global guard: auth + (optional) role check */
+/**
+ * Global guard: checks authentication and (optionally) role.
+ * - Set `meta.requiresAuth` to protect a route.
+ * - Set `meta.requiresRole` to enforce a specific role stored in localStorage.
+ */
 router.beforeEach(async (to, from, next) => {
   try {
-    // Require authentication?
+    // Auth check
     if (to.meta?.requiresAuth) {
       const user = await getCurrentUser()
       if (!user) {
@@ -69,12 +88,12 @@ router.beforeEach(async (to, from, next) => {
       }
     }
 
-    // Require a specific role? (stored in localStorage by login flow)
+    // Role check
     if (to.meta?.requiresRole) {
       const role = localStorage.getItem('role') || ''
       if (role !== to.meta.requiresRole) {
         console.warn('[Router Guard] insufficient role:', role)
-        return next('/') // or redirect to a 403 page
+        return next('/') // or point to a dedicated 403 page
       }
     }
 

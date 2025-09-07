@@ -1,5 +1,5 @@
 <template>
-  <!-- Using Bootstrap header navigation -->
+  <!-- Bootstrap header navigation -->
   <div class="container">
     <header class="d-flex justify-content-between align-items-center py-3">
       <ul class="nav nav-pills">
@@ -10,14 +10,21 @@
           </router-link>
         </li>
 
-        <!-- Only show About if user is admin -->
+        <!-- Always show Add Book (per lab 8.4.2) -->
+        <li class="nav-item">
+          <router-link to="/addbook" class="nav-link" active-class="active">
+            Add Book
+          </router-link>
+        </li>
+
+        <!-- Only show About when user is admin -->
         <li class="nav-item" v-if="isAuthenticated && role === 'admin'">
           <router-link to="/about" class="nav-link" active-class="active">
             About
           </router-link>
         </li>
 
-        <!-- Show Login/Register if NOT authenticated -->
+        <!-- Show Login/Register when NOT authenticated -->
         <li class="nav-item" v-if="!isAuthenticated">
           <router-link to="/FireLogin" class="nav-link" active-class="active">
             Login
@@ -29,7 +36,7 @@
           </router-link>
         </li>
 
-        <!-- Show Logout if authenticated -->
+        <!-- Show Logout when authenticated (navigates to /logout page that performs signOut) -->
         <li class="nav-item" v-if="isAuthenticated">
           <router-link to="/logout" class="nav-link" active-class="active">
             Logout
@@ -48,27 +55,27 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '../firebase/init'
+import { auth } from '../firebase/init' // or use '@/firebase/init' if you prefer alias
 
-// reactive auth state
+// Reactive auth state used by the header
 const isAuthenticated = ref(false)
 const currentEmail = ref('')
 const role = ref('')
 
-// keep unsubscribe function
+// Keep the unsubscribe function to clean up the listener
 let unsubscribeAuth = null
 
-// subscribe to Firebase auth state
+// Subscribe to Firebase auth state
 onMounted(() => {
   unsubscribeAuth = onAuthStateChanged(auth, (user) => {
     isAuthenticated.value = !!user
     currentEmail.value = user?.email ?? ''
-    // get role from localStorage (set during login)
+    // Read role from localStorage (written at login)
     role.value = localStorage.getItem('role') || ''
   })
 })
 
-// cleanup listener
+// Clean up the auth listener when component is unmounted
 onUnmounted(() => {
   if (typeof unsubscribeAuth === 'function') unsubscribeAuth()
 })
