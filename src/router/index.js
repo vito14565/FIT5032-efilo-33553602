@@ -7,7 +7,7 @@ import FirebaseRegisterView from '../views/FirebaseRegisterView.vue'
 import LogoutView from '../views/LogoutView.vue' // 👈 add
 
 // Firebase Auth
-import { auth } from '../firebase'
+import { auth } from '../firebase/init'
 import { onAuthStateChanged } from 'firebase/auth'
 
 const routes = [

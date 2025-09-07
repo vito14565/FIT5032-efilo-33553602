@@ -13,7 +13,7 @@ import Aura from '@primevue/themes/aura'
 // import 'primeicons/primeicons.css'
 
 // Firebase Auth
-import { auth } from './firebase'
+import { auth } from './firebase/init'   
 import { onAuthStateChanged } from 'firebase/auth'
 
 const app = createApp(App)
@@ -35,4 +35,4 @@ onAuthStateChanged(auth, (user) => {
   } else {
     console.log('[Auth] current user = null')
   }
-})
+}) 

@@ -48,7 +48,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '../firebase'
+import { auth } from '../firebase/init'
 
 // reactive auth state
 const isAuthenticated = ref(false)

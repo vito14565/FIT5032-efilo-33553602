@@ -57,7 +57,7 @@ import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { getFirestore, doc, getDoc } from 'firebase/firestore'
-import { auth } from '../firebase'
+import { auth } from '../firebase/init'
 
 // Form state
 const email = ref('')
