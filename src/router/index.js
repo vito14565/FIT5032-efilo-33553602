@@ -9,7 +9,7 @@ import FirebaseRegisterView from '../views/FirebaseRegisterView.vue'
 import LogoutView from '../views/LogoutView.vue'
 import AddBookView from '../views/AddBookView.vue'
 import GetBookCountView from '../views/GetBookCountView.vue' // ← added
-import WeatherView from '../views/WeatherView.vue' // ← 新增 WeatherView
+import WeatherView from '../views/WeatherView.vue' // ← WeatherView
 
 // Firebase Auth
 import { auth } from '../firebase/init'
