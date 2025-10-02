@@ -27,10 +27,10 @@
           </router-link>
         </li>
 
-        <!-- NEW: Count Book API (Week 10 / Cloud Functions JSON) -->
+        <!-- ✅ NEW: GetAllBookAPI (Week 10 / Cloud Functions JSON) -->
         <li class="nav-item">
-          <router-link to="/CountBookAPI" class="nav-link" active-class="active">
-            Count Book API
+          <router-link to="/GetAllBookAPI" class="nav-link" active-class="active">
+            GetAllBookAPI
           </router-link>
         </li>
 
