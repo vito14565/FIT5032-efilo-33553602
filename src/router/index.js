@@ -9,6 +9,7 @@ import FirebaseRegisterView from '../views/FirebaseRegisterView.vue'
 import LogoutView from '../views/LogoutView.vue'
 import AddBookView from '../views/AddBookView.vue'
 import GetBookCountView from '../views/GetBookCountView.vue' // ← added
+import WeatherView from '../views/WeatherView.vue' // ← 新增 WeatherView
 
 // Firebase Auth
 import { auth } from '../firebase/init'
@@ -37,6 +38,13 @@ const routes = [
     path: '/getBookCount',
     name: 'GetBookCount',
     component: GetBookCountView,
+  },
+
+  // Weather Check page (for EFOLIO 10.x)
+  {
+    path: '/WeatherCheck',
+    name: 'GetWeather',
+    component: WeatherView,
   },
 
   // Auth flows

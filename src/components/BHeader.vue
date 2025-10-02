@@ -13,10 +13,17 @@
           <router-link to="/addbook" class="nav-link" active-class="active">Add Book</router-link>
         </li>
 
-        <!-- New: Get Book Count (EFOLIO 9.3 / 9.2.1) -->
+        <!-- Get Book Count (EFOLIO 9.3 / 9.2.1) -->
         <li class="nav-item">
           <router-link to="/getBookCount" class="nav-link" active-class="active">
             Get Book Count
+          </router-link>
+        </li>
+
+        <!-- NEW: Get Weather (Week 10 / WeatherCheck) -->
+        <li class="nav-item">
+          <router-link to="/WeatherCheck" class="nav-link" active-class="active">
+            Get Weather
           </router-link>
         </li>
 
