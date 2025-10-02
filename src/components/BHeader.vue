@@ -27,6 +27,13 @@
           </router-link>
         </li>
 
+        <!-- NEW: Count Book API (Week 10 / Cloud Functions JSON) -->
+        <li class="nav-item">
+          <router-link to="/CountBookAPI" class="nav-link" active-class="active">
+            Count Book API
+          </router-link>
+        </li>
+
         <!-- Only show About when user is admin -->
         <li class="nav-item" v-if="isAuthenticated && role === 'admin'">
           <router-link to="/about" class="nav-link" active-class="active">About</router-link>

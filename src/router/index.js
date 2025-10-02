@@ -8,8 +8,9 @@ import FirebaseSigninView from '../views/FirebaseSigninView.vue'
 import FirebaseRegisterView from '../views/FirebaseRegisterView.vue'
 import LogoutView from '../views/LogoutView.vue'
 import AddBookView from '../views/AddBookView.vue'
-import GetBookCountView from '../views/GetBookCountView.vue' // ← added
-import WeatherView from '../views/WeatherView.vue' // ← WeatherView
+import GetBookCountView from '../views/GetBookCountView.vue' // ← EFOLIO 9
+import WeatherView from '../views/WeatherView.vue'           // ← EFOLIO 10 Weather
+import CountBookAPI from '../views/CountBookAPI.vue'         // ← EFOLIO 10 API JSON
 
 // Firebase Auth
 import { auth } from '../firebase/init'
@@ -26,25 +27,32 @@ const routes = [
     meta: { requiresAuth: true, requiresRole: 'admin' },
   },
 
-  // Add Book page (public for lab)
+  // Add Book page (lab 8)
   {
     path: '/addbook',
     name: 'AddBook',
     component: AddBookView,
   },
 
-  // Get Book Count page (for EFOLIO 9.3/9.2.1)
+  // Get Book Count page (EFOLIO 9.3 / 9.2.1)
   {
     path: '/getBookCount',
     name: 'GetBookCount',
     component: GetBookCountView,
   },
 
-  // Weather Check page (for EFOLIO 10.x)
+  // Weather Check page (EFOLIO 10.x)
   {
     path: '/WeatherCheck',
     name: 'GetWeather',
     component: WeatherView,
+  },
+
+  // Count Book API JSON page (EFOLIO 10.1 set 2 / 10.3)
+  {
+    path: '/CountBookAPI',
+    name: 'CountBookAPI',
+    component: CountBookAPI,
   },
 
   // Auth flows
@@ -60,7 +68,7 @@ const routes = [
     component: FirebaseRegisterView,
   },
 
-  // Logout page triggers signOut inside the view
+  // Logout page
   {
     path: '/logout',
     name: 'Logout',
@@ -77,7 +85,7 @@ const router = createRouter({
   routes,
 })
 
-/** Wait for the initial Firebase auth state to resolve. */
+/** Wait for the initial Firebase auth state to resolve */
 function getCurrentUser() {
   return new Promise((resolve, reject) => {
     const unsub = onAuthStateChanged(
@@ -89,12 +97,12 @@ function getCurrentUser() {
       (err) => {
         unsub()
         reject(err)
-      },
+      }
     )
   })
 }
 
-/** Global guard: checks authentication and (optionally) role. */
+/** Global guard: checks authentication and (optionally) role */
 router.beforeEach(async (to, _from, next) => {
   try {
     // Auth check
